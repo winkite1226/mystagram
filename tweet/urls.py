@@ -4,6 +4,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.main, name='main'),
-    path('tweet/', views.tweet, name='tweet'),
+    path('main/', views.main, name='main'),
+    path('upload/', views.upload_post, name='upload'),
+    path('profile/', views.profile, name='profile'),
 ]

@@ -76,12 +76,12 @@
     <!-- 부트스트랩-네비바-기본 + 수정(search를 제외하고 전부 지움) -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: fixed;width: 100%; z-index: 999">
         <div class="container-fluid" style="justify-content: space-between;flex-wrap: nowrap; min-width: 1000px">
-            <a class="navbar-brand" href="/main"><img style="width: 100px; height: 50px;"
-                                                    src="https://previews.dropbox.com/p/thumb/ABpXDV8rXR8o1VBYDzDiLXVCXbTu8MKDpVDm1YJLRkA_L7C4x7HZIKiL4iHklq1rRXbdOtY_vrofENA2f3hU1kd8DHYmDmoAwKxHsHmAXeoN2BKucS5s2sEqdVJusETKNDKKsPg7oDNbbVzcCGyC0zt0Myf6vhiVp6nsI0obbRMwFNlBhIBTrK2oEUg2OXUxuCrIKia6EE9_FpZFSmnO9LE2Cud7t18C42W1D8u5iipDO1GVX3Yi1QwxFwdasiEEF-VUmHi5vFoTQRhpuXnhcpfapDGG2rRsKfFIl5YpHMDHEM_AayORXo45jHRPUQAmgaoVNt7x0WeW8vRa8u2qpRVen7pOTefUr87h4cxHQzFmZ7eQAhlWMu6zFUb8bplnDMo/p.png">
+            <a class="navbar-brand" href="{% url 'main' %}">
+                <img style="width: 100px; height: 50px;" src="../../asset/palmtree_logo.png">
             </a>
             <input class="form-control me-2" style="width: 400px" type="search" placeholder="Search" aria-label="Search">
             <div style="display: flex">
-                <a href="/main" style="color: black"><span class="material-icons"
+                <a href="{% url 'main' %}" style="color: black"><span class="material-icons"
                                                         style="padding-right: 10px"> home</span></a>
                 <span id="nav_bar_add_box" class="material-icons-outlined" style="padding-right: 10px">add_box</span>
                 <!-- 프사 누르면 내려오는 드랍다운 -->
@@ -91,17 +91,17 @@
                         <div class="box" style="width: 25px; height: 25px">
 
                             <img class="profile"
-                                src="{% get_media_prefix %}{{ user.profile_image }}">
+                                src="{% get_media_prefix %}{{ user.user_profile_image }}">
 
                         </div>
                     </a>
 
                     <ul class="dropdown-menu" style="left:-158px" aria-labelledby="dropdownMenuLink">
-                        <li><a class="dropdown-item" href="/content/profile">프로필</a></li>
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">프로필</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="/user/logout">로그아웃</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">로그아웃</a></li>
                     </ul>
                 </div>
             </div>
@@ -128,21 +128,21 @@
                         <!-- 프로필 이름 -->
                             <div>
                                 <!-- Feed에서 유저 id 가져오기 -->
-                                {{ feed.nickname }}
+                                {{ feed.user_nickname }}
                             </div>
                         </div>
-                        {% if feed.nickname == user.nickname %}
+                        {% if feed.user_nickname == user.user_nickname %}
                         <div style="display: flex;flex-direction: row;">
                             <div style="margin-right: 10px;">
-                                <a href="/content/{{ feed.id }}/update/" style="color: black;">
-                                    <span id="feed_edit_{{ feed.id }}" feed_id="{{ feed.id }}" class="material-icons">
+                                <a href="/tweet/{{ feed.post_id }}/update/" style="color: black;">
+                                    <span id="feed_edit_{{ feed.post_id }}" feed_id="{{ feed.post_id }}" class="material-icons">
                                         edit
                                     </span>
                                 </a>
                             </div>
                             <div>
-                                <a href="/content/{{ feed.id }}/delete/" style="color: black;">
-                                    <span id="feed_delete_{{ feed.id }}" feed_id="{{ feed.id }}" class="material-icons-outlined">
+                                <a href="/tweet/{{ feed.post_id }}/delete/" style="color: black;">
+                                    <span id="feed_delete_{{ feed.post_id }}" feed_id="{{ feed.post_id }}" class="material-icons-outlined">
                                         delete
                                     </span>
                                 </a>
@@ -152,20 +152,20 @@
                     </div>
                     <!-- 게시글 이미지 Feed에서 가져온 image데이터 넣기 -->
                     <div><img style="width: 100%"
-                            src="{% get_media_prefix %}{{ feed.image }}">
+                            src="{% get_media_prefix %}{{ feed.post_image }}">
                     </div>
                     <!-- 아이콘 집합 -->
                     <div style="margin: 0 20px;display: flex; flex-direction: row; justify-content: space-between">
                         <div>
                             <!-- 좋아요,북마크 누른거 표시 -->
-                            <span id="favorite_{{ feed.id }}" feed_id="{{ feed.id }}"
+                            <span id="favorite_{{ feed.post_id }}" feed_id="{{ feed.post_id }}"
                                 class="favorite material-icons-outlined"
-                                style="color: red;cursor: pointer">{% if feed.is_liked %}
+                                style="color: red;cursor: pointer">{% if feed.post_is_liked %}
                                 favorite{% else %}favorite_border{% endif %}</span>
                         </div>
                         <div>
-                            <span id="bookmark_{{ feed.id }}" feed_id="{{ feed.id }}" class="bookmark material-icons-outlined" style="cursor: pointer">
-                                {% if feed.is_marked %}
+                            <span id="bookmark_{{ feed.post_id }}" feed_id="{{ feed.post_id }}" class="bookmark material-icons-outlined" style="cursor: pointer">
+                                {% if feed.post_is_marked %}
                                 bookmark
                                 {% else %}
                                 bookmark_border
@@ -175,27 +175,27 @@
                         </div>
                     </div>
                     <!-- 좋아요 Feed에 있는 like_count값 가져오기 -->
-                    <div style="margin: 0 20px;text-align: left;font-size: 14px"> 춘식이 <b>외 {{ feed.like_count }}명</b>이
+                    <div style="margin: 0 20px;text-align: left;font-size: 14px"> 춘식이 <b>외 {{ feed.post_like_count }}명</b>이
                         좋아합니다.
                     </div>
                     <!-- 게시글에 적어놓은 말 Feed에 있는 user_id, content 값 가져오기-->
                     <div style="margin: 0 20px;text-align: left;font-size: 16px">
-                        <b>{{ feed.nickname }}</b> {{ feed.content }}
+                        <b>{{ feed.user_nickname }}</b> {{ feed.post_content }}
                     </div>
                     <!-- 댓글들 -->
                     <div id="reply_list_{{ feed.id }}" style="margin-bottom: 10px;">
                         {% for reply in feed.reply_list %}
                             <div style="margin: 0 20px;text-align: left;font-size: 14px">
-                                <b>{{ reply.nickname }}</b> {{ reply.reply_content }}</div>
+                                <b>{{ reply.user_nickname }}</b> {{ reply.comment_content }}</div>
                         {% endfor %}
                     </div>
 
                     <!-- 댓글 입력란 -->
                     <div style="display:flex;flex-direction: row;align-items: center; border-top: solid 1px gray ">
-                        <input id="reply_{{ feed.id }}" type="text" class="form-control"
+                        <input id="reply_{{ feed.post_id }}" type="text" class="form-control"
                             style="box-shadow: none; border: none; outline: none"
                             placeholder="댓글 달기..">
-                        <div feed_id="{{ feed.id }}" class="upload_reply"
+                        <div feed_id="{{ feed.post_id }}" class="upload_reply"
                             style="width: 50px;color: cornflowerblue; font-weight: bold">
                             게시
                         </div>
@@ -211,17 +211,17 @@
                 <div class="box" style="width: 70px; height: 70px">
                     <!-- 프로필 사진 -->
                     <img class="profile"
-                        src="{% get_media_prefix %}{{ user.profile_image }}">
+                        src="{% get_media_prefix %}{{ user.user_profile_image }}">
                 </div>
                 <!-- 프로필 이름 -->
                 <div style="margin-left: 10px; text-align: left">
                     <div style="font-weight: bold">
                         <!-- 닉네임 -->
-                        {{ user.nickname }}
+                        {{ user.user_nickname }}
                     </div>
                     <div style="color: gray">
                         <!-- 이름 -->
-                        {{ user.name }}
+                        {{ user.username }}
                     </div>
                 </div>
             </div>
@@ -350,6 +350,7 @@
     <!-- 첫번째 모달 -->
     <div id="first_modal" class="modal_overlay">
         <div class="modal_window">
+            <!--상단 부분-->
             <div style="display: flex; flex-direction: row; justify-content: space-between">
                 <div style="width: 40px;">
 
@@ -358,7 +359,7 @@
                     새 이미지 업로드
                 </div>
                 <div style="width: 40px;">
-                    <span class="modal_close material-icons-outlined">close</span>
+                    <span id='modal_close' class="modal_close material-icons-outlined">close</span>
                 </div>
             </div>
             <!-- 이미지 드래그앤드롭 공간 -->
@@ -372,14 +373,14 @@
     <div id="second_modal" class="modal_overlay">
         <div class="modal_window">
             <div style="display: flex; flex-direction: row; justify-content: space-between">
-                <div style="width: 40px; background: gray">
+                <div style="width: 40px;">
 
                 </div>
                 <div>
                     새 이미지 업로드
                 </div>
-                <div style="width: 40px; background: gray">
-                    <span class="modal_close material-icons-outlined">close</span>
+                <div style="width: 40px;">
+                    <span id='modal_close' class="modal_close material-icons-outlined">close</span>
                 </div>
             </div>
 
@@ -390,11 +391,15 @@
                 </div>
                 <!-- 게시글 이미지에 달 코멘트 입력하는 공간 -->
                 <div style="border-left: solid 1px gray">
-                    <div>
-                        <textarea id="input_feed_content" class="form-control" style="width: 276px; height: 400px"
-                                id="exampleFormControlTextarea1" rows="5"></textarea>
+                    <div style="margin-top: 20px;">
+                        <textarea id="input_feed_title" class="form-control" style="width: 276px; height: 60px"
+                                id="exampleFormControlTextarea1" rows="1" placeholder="Title"></textarea>
                     </div>
-                    <button id="feed_create_button" type="button" class="btn btn-primary" style="width: 100%">
+                    <div style="margin-top: 10px;">
+                        <textarea id="input_feed_content" class="form-control" style="width: 276px; height: 380px"
+                                id="exampleFormControlTextarea1" rows="5" placeholder="Content"></textarea>
+                    </div>
+                    <button id="feed_create_button" type="button" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
                         공유하기
                     </button>
                 </div>
@@ -403,6 +408,144 @@
 
         </div>
     </div>
+
+    <!-- 제이쿼리 스크립트 -->
+    <script>
+        let files;
+
+        //게시물 추가버튼 클릭 시 first_modal이 보이게
+        $('#nav_bar_add_box').click(function () {
+        $('#first_modal').css({
+            display: 'flex'
+        });
+
+        $(document.body).css({
+            overflow: 'hidden'
+        });
+
+
+        //모달창 닫기 버튼을 눌렀을 때 실행
+        $("#modal_close").click(function () {
+            $('#first_modal').css({
+                display: 'none'
+            });
+            $('#second_modal').css({
+                display: 'none'
+            });
+        });
+
+
+        // 이미지 드래그앤 드롭을 하게 만들어주는 쿼리 구글 검색으로 가져옴
+        $('.img_upload_space')
+            .on("dragover", dragOver)
+            .on("dragleave", dragOver)
+            .on("drop", uploadFiles);
+
+        function dragOver(e) {
+            // 모달 창에서 일어나는 액션이 뒤에있는 배경 화면까지 영향을 미치지 않게 만들어주는 쿼리
+            e.stopPropagation();
+            e.preventDefault();
+
+            //드래그 오버 했을 때 화면 css 반응 설정
+            if (e.type == "dragover") {
+                $(e.target).css({
+                    "background-color": "black",
+                    "outline-offset": "-20px"
+                });
+            } else {
+                $(e.target).css({
+                    "outline-offset": "-10px"
+                });
+            }
+        }
+
+
+        function uploadFiles(e) {
+            // 모달 창에서 일어나는 액션이 뒤에있는 배경 화면까지 영향을 미치지 않게 만들어주는 쿼리
+            e.stopPropagation();
+            e.preventDefault();
+
+            //내가 올린 파일을 업로드 하는 코드
+            e.dataTransfer = e.originalEvent.dataTransfer; //2
+            files = e.target.files || e.dataTransfer.files;
+            console.log("파일이 올라왔습니다." + files[0].name);
+            if (files.length > 1) {
+                alert('파일을 한개만 올려주세요.');
+                return;
+            }
+
+            //브라우저에서 파일을 읽은 이후에 다시 보여주는 코드(내가 올린 사진 파일을 보여준다.)
+            if (files[0].type.match(/image.*/)) {
+                //이미지가 올라가면 첫번째 모달을 숨기고 두번째 모달을 보여준다.
+                $('#first_modal').css({
+                    display: 'none'
+                });
+                $('#second_modal').css({
+                    display: 'flex'
+                });
+
+                $('.img_upload_space').css({
+                    // 받은 파일의 타입이 image이면, 백그라운드 이미지를 방금 올라간
+                    // 파일(window.URL.createObjectURL(files[0]))로 교체 브라우저가 파일을 가져 파일의 주소가 생성된 것, 아직
+                    // 파일이 서버에 올라간것은 아님
+                    "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
+                    "outline": "none",
+                    "background-size": "100%",
+                    "background-repeat": "no-repeat",
+                    "background-position": "center"
+                });
+            } else {
+                alert('이미지가 아닙니다.');
+                return;
+            }
+
+        }
+
+        // feed_create_button을 눌렀을 때 작동 데이터를 가져옴
+        $('#feed_create_button').click(function () {
+            let file = files[0];
+            // 파일이름
+            let image = files[0].name;
+            // 글 내용 input_post_content에 있는 value를 가져온다.
+            let content = $('#input_feed_content').val();
+
+            // 비동기형 로딩으로 파일이 올라가는 와중에도 홈페이지는 계속 작동,이용할 수 있음 formdata형식을 통해 우리가 지금까지 입력해놓은
+            // 데이터들을 가져옴.
+            let fd = new FormData();
+
+            fd.append('file', file);
+            fd.append('image', image);
+            fd.append('content', content);
+
+            //google에서 ajax파일 업로드
+            $.ajax({
+                url: "/tweet/upload",
+                data: fd,
+                method: "POST",
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    console.log("성공");
+                },
+                error: function (request, status, error) {
+                    console.log("에러");
+                },
+                complete: function () {
+                    console.log("완료");
+                    location.replace("/tweet/main/");
+                }
+            });
+        });
+
+
+    });
+    </script>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
 
 </body>
 </html>

@@ -15,9 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .settings import MEDIA_URL, MEDIA_ROOT
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('user.urls')),
-    path('', include('tweet.urls')),
-]
+    path('user/', include('user.urls')),
+    path('tweet/', include('tweet.urls')),
+] 
+
+# 이미지 파일을 조회할 수 있게 만들어주는 코드
+urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)

@@ -1,8 +1,14 @@
+from this import d
 from django.shortcuts import render, redirect
 from django.contrib import auth  # 사용자 auth 기능
 from .models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model  # 사용자가 있는지 검사하는 함수
+from django.contrib.auth.decorators import login_required
+from plamstagram.settings import MEDIA_ROOT
+import os
+from uuid import uuid4
+
 
 # Create your views here.
 def sign_in_view(request):
@@ -19,9 +25,9 @@ def sign_in_view(request):
         # 저장된 사용자의 패스워드와 입력받은 패스워드 비교
         if me is not None:
             auth.login(request, me)
-            return redirect('/')
+            return redirect('/tweet/main')
         else:  # 로그인 실패 시
-            return redirect('/sign-in')
+            return redirect('/user/sign-in')
 
 
 # 회원가입
@@ -50,5 +56,37 @@ def sign_up_view(request):
                 msg = '이미 존재하는 이메일입니다.'
                 return render(request, 'user/signup.html', {'message': msg})
             else:
-                User.objects.create_user(username=username, email = useremail, password=userpassword, user_nickname=usernickname)
-                return redirect('/sign-in')  # 회원가입 완료 후 로그인 페이지로 이동
+                User.objects.create_user(username=username, email = useremail, password=userpassword, user_nickname=usernickname, user_profile_image='default_profile.png')
+                return redirect('/user/sign-in')  # 회원가입 완료 후 로그인 페이지로 이동
+
+
+# 로그아웃
+@login_required
+def logout(request):
+    auth.logout(request)  # 인증 되어있는 정보를 없애기
+    return redirect('/user/sign-in')
+
+
+# 프로필 변경
+@login_required
+def uploadprofile(request):
+    if request.method == 'POST':
+
+        # 일단 파일을 불러와
+        file = request.FILES.get('file')
+
+        uuid_name = uuid4().hex
+        save_path = os.path.join(MEDIA_ROOT, uuid_name)
+
+        with open(save_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        profile_img = uuid_name
+        user = request.user  # 현재 로그인한 사용자 불러오기
+
+        user = User.objects.filter(user_email=user.user_email).first()
+        user.user_profile_image = profile_img
+        user.save()
+
+        return redirect('/tweet/profile')
