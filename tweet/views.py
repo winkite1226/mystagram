@@ -1,4 +1,3 @@
-from sys import api_version
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Post, Comment, Like, Bookmark
 from user.models import User
@@ -7,6 +6,8 @@ import os
 from plamstagram.settings import MEDIA_ROOT
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_protect
 
 # Create your views here.
 def main(request):
@@ -14,10 +15,16 @@ def main(request):
         is_user = request.user.is_authenticated  # 사용자가 인증을 받았는지(로그인이 되어있는지)
         if is_user:
             user = request.user  # 로그인한 사용자 정보 불러오기
+            print(user)
+            print(user.user_id)
             all_tweet = Post.objects.all().order_by('-post_created_at')  # 저장된 모든 포스트 불러오기
-            if all_tweet is None:
-                return render(request,'tweet/main.html')
+            all_user = User.objects.all().exclude(user_nickname=user.user_nickname)  # 모든 유저
             post_list = []
+            user_list = []
+            print('hello')
+            for person in all_user:
+                user_list.append(dict(name=person.username, nickname=person.user_nickname, profile_image=person.user_profile_image))
+
             for tweet in all_tweet:  # tweet은 Post 인스턴스, 각 포스트에 대해
                 user_post = User.objects.filter(user_id=tweet.post_author)  # 각 포스트를 작성한 사람
                 all_comment = Comment.objects.filter(comment_postid=tweet.post_id)  # 한 포스터에 대한 모든 댓글들
@@ -43,7 +50,7 @@ def main(request):
                                   is_liked=is_liked,
                                   is_marked=is_marked
                                   ))
-            return render(request, 'tweet/main.html', context=dict(feeds=post_list, user=user))
+            return render(request, 'tweet/main.html', context=dict(feeds=post_list, user=user, people=user_list))
 
         else:
             return redirect('/user/sign-in/')
@@ -51,15 +58,20 @@ def main(request):
         
 @api_view(['POST'])
 @login_required
+@csrf_protect
 def upload_post(request):
     if request.method == 'POST':
 
-        file = request.FILES.get('file')
+        file = request.FILES['file']
 
         #랜덤으로 고유한 id값을 주기 위해서 uuid4사용(특수문자, 한글 섞여들어가면 오류가 날 수 있기 때문에)
         uuid_name = uuid4().hex 
         #/media/uuid랜덤이름 으로 저장되게 만든다
+        print('ok')
+        print(MEDIA_ROOT)
         save_path = os.path.join(MEDIA_ROOT, uuid_name)
+        print('ok')
+        print(MEDIA_ROOT)
 
         #실제로 저장하는 부분save_path에. 저장된 chunks에서 chuck를 하나하나 가져와서 사용한다.
         with open(save_path, 'wb+') as destination:
@@ -70,7 +82,7 @@ def upload_post(request):
         user = request.user  # 현재 로그인한 사용자를 불러오기
 
         my_post = Post()  # 게시글 모델 가져오기
-        my_post.post_author = user  # 모델에 사용자 저장
+        my_post.post_author = user.user_id  # 모델에 사용자 저장
         my_post.post_title = request.POST.get('input_feed_title', '')
         my_post.post_content = request.POST.get('input_feed_content', '')
         my_post.post_image = image
@@ -78,7 +90,7 @@ def upload_post(request):
         my_post.save()
         print(file)
         print(image)
-        return render(request, 'tweet/main.html')
+        return Response(status=200)
 
 
 @login_required    

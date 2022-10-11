@@ -1,4 +1,3 @@
-from this import d
 from django.shortcuts import render, redirect
 from django.contrib import auth  # 사용자 auth 기능
 from .models import User
@@ -8,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from plamstagram.settings import MEDIA_ROOT
 import os
 from uuid import uuid4
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 
 # Create your views here.
@@ -68,6 +69,7 @@ def logout(request):
 
 
 # 프로필 변경
+@api_view
 @login_required
 def uploadprofile(request):
     if request.method == 'POST':
@@ -89,4 +91,4 @@ def uploadprofile(request):
         user.user_profile_image = profile_img
         user.save()
 
-        return redirect('/tweet/profile')
+        return Response(status=200)
